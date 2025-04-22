@@ -11,21 +11,30 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import environ
 
+env = environ.Env(DEBUG=(bool, False))  # set default value for DEBUG
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+environ.Env.read_env(BASE_DIR / '.env')  # read .env file
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-e3fjcx=u@u6ij6)dij56z=(0+m)tm)$)%^k_@k1^&z$-lf)%y2'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG') 
 
 ALLOWED_HOSTS = []
+
+CORS_ALLOWED_ORIGINS = [
+    #This tells Django: “Only accept cross-origin requests from these full URLs.”
+    "http://localhost:5173",     # React (Vite) dev server
+    "http://127.0.0.1:5173",     # Just in case you access via 127.0.0.1
+]
 
 
 # Application definition
@@ -37,11 +46,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # External apps
+    'rest_framework',
+    'corsheaders',
+    # Internal apps
+    'users',
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # corsheaders.middleware.CorsMiddleware must be placed before CommonMiddleware
+    # to ensure that CORS headers are added to the response.
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -120,3 +138,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'users.User' # Custom user model
