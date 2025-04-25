@@ -14,13 +14,23 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# backend/urls.py
+
 from django.contrib import admin
 from django.urls import path, include
+from users.views import send_otp, verify_otp, change_user_role  # RBAC: Add change_user_role
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # ✅ This must come *after* admin
-    path('api/v1/auth/', include('djoser.urls')),
-    path('api/v1/auth/', include('djoser.urls.jwt')),
+    # DJOSER auth endpoints including /activation/
+    path('api/v1/auth/', include('djoser.urls')),         # handles registration, activation, etc.
+    path('api/v1/auth/', include('djoser.urls.jwt')),     # handles JWT create/refresh/logout
+
+    # OTP
+    path('api/v1/otp/send/', send_otp, name='send-otp'),
+    path('api/v1/otp/verify/', verify_otp, name='verify-otp'),
+
+    # RBAC: Admin-only role change endpoint
+    path('api/v1/admin/users/<int:user_id>/role/', change_user_role, name='change-user-role'),
 ]

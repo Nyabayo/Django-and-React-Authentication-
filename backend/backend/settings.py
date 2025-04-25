@@ -53,12 +53,15 @@ INSTALLED_APPS = [
     'corsheaders',
     'djoser',
     'rest_framework_simplejwt',
+    'django_otp',
+    'django_otp.plugins.otp_email',
     # Internal apps
     'users',
 
 ]
 
 MIDDLEWARE = [
+    'django_otp.middleware.OTPMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     # corsheaders.middleware.CorsMiddleware must be placed before CommonMiddleware
@@ -163,24 +166,52 @@ SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
 }
 
+
+
 DJOSER = {
     'LOGIN_FIELD': 'email',
     "USER_CREATE_PASSWORD_RETYPE": True,
     "USERNAME_CHANGED_EMAIL_CONFIRMATION": True,
     "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
     "SEND_CONFIRMATION_EMAIL": True,
+    "SEND_ACTIVATION_EMAIL": True,
+    "ACTIVATION_URL": "activate/{uid}/{token}",
     "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
     "SET_PASSWORD_RETYPE": True,
     "PASSWORD_RESET_CONFIRM_RETYPE": True,
     'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
-    "ACTIVATION_URL": "api/v1/auth/activate/{uid}/{token}",
-    'SEND_ACTIVATION_EMAIL': True,
+    
     'SERIALIZERS': {
         'user_create': 'users.serializers.CreateUserSerializer',
-        'user': "users.serializers.CreateUserSerializer",
-        'user_delete': "djoser.serializers.UserDeleteSerializer",      
+        'user': 'users.serializers.CreateUserSerializer',
+        'user_delete': 'djoser.serializers.UserDeleteSerializer',
+        'current_user': 'users.serializers.CustomUserSerializer',
     },
 }
+
+
+
+
+# DJOSER = {
+#     'LOGIN_FIELD': 'email',
+#     "USER_CREATE_PASSWORD_RETYPE": True,
+#     "USERNAME_CHANGED_EMAIL_CONFIRMATION": True,
+#     "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
+#     "SEND_CONFIRMATION_EMAIL": True,
+#     "PASSWORD_RESET_CONFIRM_URL": "password/reset/confirm/{uid}/{token}",
+#     "SET_PASSWORD_RETYPE": True,
+#     "PASSWORD_RESET_CONFIRM_RETYPE": True,
+#     'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
+#     "ACTIVATION_URL": "api/v1/auth/activate/{uid}/{token}",
+#     'SEND_ACTIVATION_EMAIL': True,
+#     'SERIALIZERS': {
+#         'user_create': 'users.serializers.CreateUserSerializer',
+#         'user': "users.serializers.CreateUserSerializer",
+#         'user_delete': "djoser.serializers.UserDeleteSerializer",  
+#         #RBAC:  custom serializer
+#         'current_user': 'users.serializers.CustomUserSerializer',  
+#     },
+# }
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
